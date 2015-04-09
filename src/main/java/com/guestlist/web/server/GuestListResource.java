@@ -1,12 +1,15 @@
 package com.guestlist.web.server;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -17,10 +20,16 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 @Path("/guestlist")
@@ -30,31 +39,61 @@ public class GuestListResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GuestListResource.class);
 	
 	private Client client;
+	private static final ObjectMapper mapper = new ObjectMapper();
 	
 	public GuestListResource(Client client) {
 		this.client = client;
 	}
 
     @GET
-    public Guest sayHello(@QueryParam("id") String id) {
+    public Guest getGuest(@QueryParam("id") String id) {
+    	LOGGER.info("getGuest: {}", id);
+    	
     	GetRequestBuilder getRequestBuilder = client.prepareGet("guestlist", "guest", id.toString());
     	GetResponse response = getRequestBuilder.execute().actionGet();
-    	LOGGER.info("EsResponse String: {}", response.toString());
-    	LOGGER.info("EsResponse first_name: {}", response.getSourceAsString());
-    	LOGGER.info("EsResponse Id: {}", response.getId());
-    	
-    	Map<String,Object> source = response.getSource();
-    	LOGGER.info("EsResponse keySet: {}", source.keySet());
-    	Guest guest = new Guest(id,(String)source.get("firstName"),null,(String)source.get("lastName"));
+    	//Map<String,Object> source = response.getSource();
 
+    	Guest guest = null;
+    	try {
+    		guest = mapper.readValue(response.getSourceAsString(), Guest.class);
+    	}
+    	catch(IOException e) {
+    		throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+    	}
+    	//Guest guest = new Guest(id,(String)source.get("firstName"),null,(String)source.get("lastName"));
     	return guest;
     }	
+    
+    @Path("guests/{event}")
+    @GET
+    public List<Guest> getGuestsForEvent(@PathParam("event") String eventName) {
+    	LOGGER.info("getGuestsForEvent: {}", eventName);
+    	List<Guest> guests = new ArrayList<>();
+
+    	QueryBuilder qb = QueryBuilders.matchQuery("eventKey", Guest.DEFAULT_EVENT_KEY);    	
+    	SearchRequestBuilder srb = client.prepareSearch("guestlist");
+    	srb.setTypes("guest");
+    	srb.setQuery(qb);
+    	SearchResponse response = srb.execute().actionGet();
+    	LOGGER.info("getGuestsForEvent: {}", response);
+    	
+    	for(SearchHit searchHit : response.getHits()) {
+    		try {
+    			Guest g = mapper.readValue(searchHit.getSourceAsString(), Guest.class);
+    			guests.add(g);
+    		} catch (IOException e) {
+    			LOGGER.warn("Caught exception", e);
+    		}
+    	}
+    	
+    	return guests;
+    }
 	
 	@Path("guest")
 	@POST()
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doPost(Guest guest) {
-        LOGGER.info("receiveHello: {}", guest);
+	public Response addGuest(Guest guest) {
+        LOGGER.info("addGuest: {}", guest);
         
         if(guest == null || guest.getId() == null) {
         	throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -63,9 +102,8 @@ public class GuestListResource {
     	IndexRequest indexRequest = new IndexRequest("guestlist","guest", guest.getId().toString());
     	indexRequest.source(new Gson().toJson(guest));
     	IndexResponse response = client.index(indexRequest).actionGet();
-    	LOGGER.info("response: {}", response.toString());
 		
-		return Response.created(URI.create(guest.getId())).entity(guest).build();
+		return Response.created(URI.create(guest.getId())).entity(response).build();
 	}
 	
 }

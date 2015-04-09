@@ -28,6 +28,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'org.elasticsearch:elasticsearch:1.4.4'
     compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     testCompile 'cglib:cglib-nodep:3.1'
