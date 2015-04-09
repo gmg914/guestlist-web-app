@@ -1,0 +1,52 @@
+apply plugin: 'java'
+apply plugin: 'gradle-one-jar'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+version = '1.0'
+
+// Add Gradle OneJar Plugin, see https://github.com/rholder/gradle-one-jar
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.github.rholder:gradle-one-jar:1.0.3'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+mainClassName = 'com.my.demo.coffee.CoffeeShopService'
+
+dependencies {
+    compile 'io.dropwizard:dropwizard-core:0.7.1'
+    compile 'io.dropwizard:dropwizard-assets:0.7.1'
+    compile 'org.mongodb.morphia:morphia:0.110'
+
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    testCompile 'cglib:cglib-nodep:3.1'
+    testCompile 'org.objenesis:objenesis:2.1'
+    testCompile 'org.codehaus.groovy:groovy-all:2.4.0'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}
+
+// Configure the oneJar task
+task oneJar(type: OneJar) {
+    mainClass = mainClassName
+}
+
+run {
+    args 'server', './src/dist/config/coffee.yml'
+
+}
+
+artifacts {
+    oneJar
+}
