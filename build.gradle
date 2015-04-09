@@ -20,12 +20,14 @@ repositories {
     mavenCentral()
 }
 
-mainClassName = 'com.my.demo.coffee.CoffeeShopService'
+mainClassName = 'com.guestlist.web.server.GuestListWebServer'
 
 dependencies {
     compile 'io.dropwizard:dropwizard-core:0.7.1'
     compile 'io.dropwizard:dropwizard-assets:0.7.1'
-    compile 'org.mongodb.morphia:morphia:0.110'
+    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'org.elasticsearch:elasticsearch:1.4.4'
+    compile 'com.google.code.gson:gson:2.3.1'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     testCompile 'cglib:cglib-nodep:3.1'
@@ -43,7 +45,7 @@ task oneJar(type: OneJar) {
 }
 
 run {
-    args 'server', './src/dist/config/coffee.yml'
+    args 'server', './src/dist/config/guestlist.yml'
 
 }
 

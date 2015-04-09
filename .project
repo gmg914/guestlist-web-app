@@ -5,10 +5,15 @@
 	<projects/>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>com.palantir.typescript.typeScriptNature</nature>
 	</natures>
 	<buildSpec>
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments/>
+		</buildCommand>
+		<buildCommand>
+			<name>com.palantir.typescript.typeScriptBuilder</name>
 			<arguments/>
 		</buildCommand>
 	</buildSpec>
