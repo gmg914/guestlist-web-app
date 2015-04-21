@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="guestListApp">
+<head>
+    <title>Guest List List</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+<div ng-app ng-controller="EventGuestsController" class="container">
+    <ul>
+        <li ng-repeat="guest in guests">{{guest}}</li>
+    </ul>
+</div>
+<script type="text/javascript" src="js/angular.min.js"></script>
+<script type="text/javascript" src="js/guestlist.js"></script>
+<script type="text/javascript" src="js/angular-resource.min.js"></script>
+</body>
+</html>

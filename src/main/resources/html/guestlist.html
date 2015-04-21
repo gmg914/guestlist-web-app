@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 <body>
-<div ng-controller="OrderController" class="container">
+<div ng-controller="EventGuestsController" class="container">
 	<form ng-submit="addGuest()">
 	<div class="form-group">
 		<label>Id</label>
@@ -29,6 +29,11 @@
 	</div>
 	</form>
 	<pre>{{guest|json}}</pre>
+	<div class="container">
+	    <ul>
+	        <li ng-repeat="myguest in guests | orderBy: '-id'">{{myguest}}</li>
+	    </ul>
+	</div>
 </div>
 <script type="text/javascript" src="js/angular.min.js"></script>
 <script type="text/javascript" src="js/guestlist.js"></script>

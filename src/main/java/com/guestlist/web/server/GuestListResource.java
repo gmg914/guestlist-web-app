@@ -16,6 +16,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -45,22 +47,28 @@ public class GuestListResource {
 		this.client = client;
 	}
 
+	@Path("guest")
     @GET
     public Guest getGuest(@QueryParam("id") String id) {
     	LOGGER.info("getGuest: {}", id);
     	
+    	if(id == null) {
+    		LOGGER.error("QueryParam id missing");
+    		throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    	}
+    	
     	GetRequestBuilder getRequestBuilder = client.prepareGet("guestlist", "guest", id.toString());
     	GetResponse response = getRequestBuilder.execute().actionGet();
-    	//Map<String,Object> source = response.getSource();
 
     	Guest guest = null;
     	try {
     		guest = mapper.readValue(response.getSourceAsString(), Guest.class);
     	}
     	catch(IOException e) {
+    		LOGGER.error("Could not map search hit to Guest", e);
     		throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
     	}
-    	//Guest guest = new Guest(id,(String)source.get("firstName"),null,(String)source.get("lastName"));
+    	
     	return guest;
     }	
     
@@ -74,6 +82,7 @@ public class GuestListResource {
     	SearchRequestBuilder srb = client.prepareSearch("guestlist");
     	srb.setTypes("guest");
     	srb.setQuery(qb);
+    	srb.setSize(100);
     	SearchResponse response = srb.execute().actionGet();
     	LOGGER.info("getGuestsForEvent: {}", response);
     	
@@ -82,11 +91,35 @@ public class GuestListResource {
     			Guest g = mapper.readValue(searchHit.getSourceAsString(), Guest.class);
     			guests.add(g);
     		} catch (IOException e) {
-    			LOGGER.warn("Caught exception", e);
+    			LOGGER.error("Could not map search hit to Guest", e);
+    			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
     		}
     	}
     	
     	return guests;
+    }
+    
+    @Path("guests/delete/{id}")
+    @GET
+    public Response deleteGuestById(@PathParam("id") String id) {
+    	LOGGER.info("deleteGuestById: {}", id);
+    	
+    	if(id == null) {
+    		LOGGER.error("QueryParam id missing");
+    		throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    	}
+    	
+    	DeleteRequestBuilder drb = client.prepareDelete("guestlist", "guest", id);
+    	DeleteResponse response = drb.execute().actionGet();
+   	
+    	return Response.created(URI.create(id)).entity(response).build();
+    }
+    
+    @Path("allguests")
+    @GET
+    public List<Guest> getAllGuests() {
+    	LOGGER.info("getAllGuests");
+    	return getGuestsForEvent(Guest.DEFAULT_EVENT_KEY);
     }
 	
 	@Path("guest")
@@ -96,13 +129,14 @@ public class GuestListResource {
         LOGGER.info("addGuest: {}", guest);
         
         if(guest == null || guest.getId() == null) {
+        	LOGGER.error("Invalid guest {}", guest);
         	throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
     	
     	IndexRequest indexRequest = new IndexRequest("guestlist","guest", guest.getId().toString());
     	indexRequest.source(new Gson().toJson(guest));
     	IndexResponse response = client.index(indexRequest).actionGet();
-		
+
 		return Response.created(URI.create(guest.getId())).entity(response).build();
 	}
 	
