@@ -28,6 +28,7 @@ public class GuestListWebServer extends Application<GuestListConfiguration>{
 	public void run(final GuestListConfiguration configuration, final Environment environment) throws Exception {
 		final ManagedEsClient managedClient = new ManagedEsClient(configuration.getEsConfiguration());
 		environment.jersey().register(new GuestListResource(managedClient.getClient()));
+		environment.jersey().register(new EventResource(managedClient.getClient()));
 	}
 	
 }

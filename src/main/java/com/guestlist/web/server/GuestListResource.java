@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -16,6 +17,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
@@ -100,7 +102,7 @@ public class GuestListResource {
     }
     
     @Path("guests/delete/{id}")
-    @GET
+    @DELETE
     public Response deleteGuestById(@PathParam("id") String id) {
     	LOGGER.info("deleteGuestById: {}", id);
     	
@@ -125,7 +127,7 @@ public class GuestListResource {
 	@Path("guest")
 	@POST()
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response addGuest(Guest guest) {
+	public List<Guest> addGuest(Guest guest) {
         LOGGER.info("addGuest: {}", guest);
         
         if(guest == null || guest.getId() == null) {
@@ -136,8 +138,18 @@ public class GuestListResource {
     	IndexRequest indexRequest = new IndexRequest("guestlist","guest", guest.getId().toString());
     	indexRequest.source(new Gson().toJson(guest));
     	IndexResponse response = client.index(indexRequest).actionGet();
-
-		return Response.created(URI.create(guest.getId())).entity(response).build();
+    	
+//    	try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		return getAllGuests();
+	}
+	
+	private void refreshIndices(String... indices) {
+		client.admin().indices().refresh(new RefreshRequest(indices)).actionGet();
 	}
 	
 }

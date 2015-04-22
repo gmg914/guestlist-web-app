@@ -3,6 +3,7 @@
 <head>
     <title>Guest List</title>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="css/guestlist.css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 <body>
@@ -28,10 +29,22 @@
 		<input type="submit" class="btn btn-default btn-lg" value="Add Guest"/>
 	</div>
 	</form>
-	<pre>{{guest|json}}</pre>
+	<!--<pre>{{guest|json}}</pre>-->
 	<div class="container">
 	    <ul>
-	        <li ng-repeat="myguest in guests | orderBy: '-id'">{{myguest}}</li>
+	    	<table id="customers">
+	    	<tr>
+	    		<th>Id</th>
+	    		<th>First Name</th>
+	    		<th>Last Name</th>
+	    		<th>Email</th>
+	    	</tr>
+	    	<tr ng-repeat="myguest in guests | orderBy: '-id'">
+	    		<td>{{ myguest.id }}</td>
+	        	<td>{{ myguest.firstName }}</td>
+	        	<td>{{ myguest.lastName }}</td>
+	        	<td>{{ myguest.emailAddress }}</td>
+	        </tr>
 	    </ul>
 	</div>
 </div>

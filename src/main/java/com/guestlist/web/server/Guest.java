@@ -1,5 +1,8 @@
 package com.guestlist.web.server;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -19,6 +22,9 @@ public class Guest {
 	private String id;
 	private long householdId = NO_HOUSEHOLD_ID;
 	private String eventKey = DEFAULT_EVENT_KEY;
+	
+	private Set<String> events;
+	private Map<String,Boolean> eventRSVPs;
 
 	public Guest() {
         // Jackson deserialization
@@ -66,5 +72,9 @@ public class Guest {
 	
 	public String getEmailAddress() {
 		return emailAddress;
+	}
+	
+	public Set<String> getEvents() {
+		return events;
 	}
 }

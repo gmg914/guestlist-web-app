@@ -1,36 +1,23 @@
 var coffeeApp = angular.module('guestListApp', ['ngResource']);
 
 coffeeApp.controller('EventGuestsController', function($scope, $resource, $http, $timeout) {
-	var self = this;
 	console.log("In EventGuestsController");
-
-	//$scope.refreshGuests();
-
-	//$scope.guests = [
-	//	{firstName:'foo', lastName:'bar'}
-	//];
-	//$http.get('/guestlist/allguests').success(function(data) {
-  	//	$scope.guests = data;
-	//});
 	
-	$scope.refreshGuests = function() {
-		console.log("In refreshGuests");
-		$timeout(function() {
-			$http.get('/guestlist/allguests').success(function(data) {
-	  			$scope.guests = data;
-			});
-		},0);
-	};
+	//$scope.refreshGuests = function() {
+	//	console.log("In refreshGuests");
+	//	$timeout(function() {
+	//		$http.get('/guestlist/allguests').success(function(data) {
+	//  			$scope.guests = data;
+	//		});
+	//	},0);
+	//};
 	
-	$scope.getAllGuests = function() {
-		console.log("In getAllGuests");
+	$scope.initializeGuests = function() {
+		console.log("In initializeGuests");
 		
 		$http.get('/guestlist/allguests').success(function(data) {
-	  		$scope.allguests = data;
+	  		$scope.guests = data;
 		});
-		console.log("allGuests");
-		console.log($scope.allguests);
-		return $scope.allguests;
 	};
 	
 	$scope.addGuest = function() {
@@ -38,29 +25,55 @@ coffeeApp.controller('EventGuestsController', function($scope, $resource, $http,
 		
 		console.log("Current Guests");
 		console.log($scope.guests);
-		
-		//var NewGuest = $resource( '/guestlist/guest/' );
-		//NewGuest.save($scope.guest);
-		
+				
 		$http.post('/guestlist/guest/', $scope.guest)
         	.success(function(data) {
-                //console.log(data);
-                var updatedGuests = $scope.getAllGuests();
-        		console.log("updatedGuests");
-        		console.log(updatedGuests);
-        		$scope.guests = updatedGuests;
+        		console.log("Post data");
+                console.log(data);
+        		$scope.guests = data;
             })
             .error(function(data) {
                 console.log('Error: ' + data);
             });
-            
-        //$timeout(function() {
-        //	$scope.guests = $scope.getAllGuests();
-        //}, 0);
-        
-
 	};
 
-	//$scope.refreshGuests()
-	$scope.guests = $scope.getAllGuests();
+	//initialize guests
+	$scope.initializeGuests();
+});
+
+coffeeApp.controller('EventController', function($scope, $http) {    
+
+    $scope.createEvent = function() {
+        $http.post('/event/', $scope.event)
+            .success(function(data) {
+                $scope.event = data;
+                $scope.eventCreated = true;                
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+    
+    $scope.updateSubEvents = function() {
+        console.log("In updateSubEvents");
+        
+        var myUrl = '/event/subevent/' + $scope.event.eventKey;
+        $http.get(myUrl).success(function(data) {
+            $scope.subevents = data;
+        });
+    };
+
+    $scope.addSubEvent = function() {
+    
+        $scope.subEvent.parentEvent = $scope.event.eventKey;
+
+        $http.post('/event/subevent/', $scope.subEvent)
+            .success(function(data) {
+                $scope.subEvent = data;
+                $scope.updateSubEvents();
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
 });
