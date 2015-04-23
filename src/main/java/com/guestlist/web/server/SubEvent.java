@@ -1,10 +1,14 @@
 package com.guestlist.web.server;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public class SubEvent extends AbstractEvent {
 	private String parentEvent;
 	
 	public SubEvent() {
         // Jackson deserialization
+		this.invitedGuests = new HashSet<Guest>();
     }
 	
 //	public SubEvent(String eventName) {
@@ -22,6 +26,6 @@ public class SubEvent extends AbstractEvent {
 	}
 	
 	public void populateEventKey() {
-		eventKey = parentEvent + "_" + eventName.toUpperCase();
+		eventKey = parentEvent + "_" + eventName.toUpperCase().replaceAll("\\s+","");
 	}
 }

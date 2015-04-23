@@ -76,17 +76,16 @@ public class GuestListResource {
     
     @Path("guests/{event}")
     @GET
-    public List<Guest> getGuestsForEvent(@PathParam("event") String eventName) {
-    	LOGGER.info("getGuestsForEvent: {}", eventName);
+    public List<Guest> getGuestsForEvent(@PathParam("event") String eventKey) {
+    	LOGGER.info("getGuestsForEvent: {}", eventKey);
     	List<Guest> guests = new ArrayList<>();
 
-    	QueryBuilder qb = QueryBuilders.matchQuery("eventKey", Guest.DEFAULT_EVENT_KEY);    	
+    	QueryBuilder qb = QueryBuilders.matchQuery("eventKey", eventKey);    	
     	SearchRequestBuilder srb = client.prepareSearch("guestlist");
     	srb.setTypes("guest");
     	srb.setQuery(qb);
     	srb.setSize(100);
     	SearchResponse response = srb.execute().actionGet();
-    	LOGGER.info("getGuestsForEvent: {}", response);
     	
     	for(SearchHit searchHit : response.getHits()) {
     		try {
@@ -139,13 +138,13 @@ public class GuestListResource {
     	indexRequest.source(new Gson().toJson(guest));
     	IndexResponse response = client.index(indexRequest).actionGet();
     	
-//    	try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		return getAllGuests();
+    	try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return getGuestsForEvent(guest.getEventKey());
 	}
 	
 	private void refreshIndices(String... indices) {

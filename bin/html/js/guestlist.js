@@ -3,15 +3,6 @@ var coffeeApp = angular.module('guestListApp', ['ngResource']);
 coffeeApp.controller('EventGuestsController', function($scope, $resource, $http, $timeout) {
 	console.log("In EventGuestsController");
 	
-	//$scope.refreshGuests = function() {
-	//	console.log("In refreshGuests");
-	//	$timeout(function() {
-	//		$http.get('/guestlist/allguests').success(function(data) {
-	//  			$scope.guests = data;
-	//		});
-	//	},0);
-	//};
-	
 	$scope.initializeGuests = function() {
 		console.log("In initializeGuests");
 		
@@ -71,6 +62,19 @@ coffeeApp.controller('EventController', function($scope, $http) {
             .success(function(data) {
                 $scope.subEvent = data;
                 $scope.updateSubEvents();
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+
+    $scope.addGuest = function() {
+        $scope.guest.eventKey = $scope.event.eventKey.replace(/\s+/g, '');
+        console.log($scope.guest.eventKey);                
+
+        $http.post('/guestlist/guest/', $scope.guest)
+            .success(function(data) {
+                $scope.guests = data;
             })
             .error(function(data) {
                 console.log('Error: ' + data);
