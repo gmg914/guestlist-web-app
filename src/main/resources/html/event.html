@@ -1,50 +1,72 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="guestListApp">
 <head>
-    <title>Event</title>
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
-    <link rel="stylesheet" type="text/css" href="css/guestlist.css"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Event</title>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="css/shop-homepage.css" />
+<link rel="stylesheet" type="text/css" href="css/guestlist.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 <body>
-<div ng-controller="EventController" class="container">
+	<div ng-include="'navbar.html'"></div>
+	<!-- Page Content -->
 	<div class="container">
-	<form ng-submit="createEvent()">
-		<div class="form-group">
-			<label>Event Name</label>
-			<input type="text" ng-model="event.eventName" ng-required="true" class="form-control"></input>
+		<div class="row">
+
+			<div class="col-md-3">
+				<p class="lead">Shop Name</p>
+				<div class="list-group">
+					<a href="#" class="list-group-item">Category 1</a> <a href="#"
+						class="list-group-item">Category 2</a> <a href="#"
+						class="list-group-item">Category 3</a>
+				</div>
+			</div>
+			<div class="col-md-9">
+				<div ng-controller="EventController" class="container">
+					<div class="container">
+						<form ng-submit="createEvent()">
+							<div class="form-group">
+								<label>Event Name</label> <input type="text"
+									ng-model="event.eventName" ng-required="true"
+									class="form-control"></input>
+							</div>
+							<div class="form-group">
+								<input type="submit" class="btn btn-default btn-lg"
+									value="Create Event" ng-disabled="eventCreated" />
+							</div>
+						</form>
+						<form ng-submit="addSubEvent()">
+							<h3>{{ event.eventName }}</h3>
+							<div class="form-group">
+								<label>Sub Event Name</label> <input type="text"
+									ng-model="subEvent.eventName" ng-required="true"
+									class="form-control"></input>
+							</div>
+							<div class="form-group">
+								<input type="submit" class="btn btn-default btn-lg"
+									value="Create Event" />
+							</div>
+						</form>
+					</div>
+					<div class="container">
+						<table id="customers">
+							<tr>
+								<th>Parent Event</th>
+								<th>Sub Event Name</th>
+							</tr>
+							<tr ng-repeat="mysubevent in subevents | orderBy: 'eventName'">
+								<td>{{ mysubevent.parentEvent }}</td>
+								<td>{{ mysubevent.eventName }}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="form-group">
-			<input type="submit" class="btn btn-default btn-lg" value="Create Event" ng-disabled="eventCreated"/>
-		</div>
-	</form>
-	<form ng-submit="addSubEvent()">
-		<h3>{{ event.eventName }}</h3>
-		<div class="form-group">
-			<label>Sub Event Name</label>
-			<input type="text" ng-model="subEvent.eventName" ng-required="true" class="form-control"></input>
-		</div>
-		<div class="form-group">
-			<input type="submit" class="btn btn-default btn-lg" value="Create Event"/>
-		</div>
-	</form>
 	</div>
-	<div class="container">
-	    <ul>
-	    	<table id="customers">
-	    	<tr>
-	    		<th>Parent Event</th>
-	    		<th>Sub Event Name</th>
-	    	</tr>
-	    	<tr ng-repeat="mysubevent in subevents | orderBy: 'eventName'">
-	    		<td>{{ mysubevent.parentEvent }}</td>
-	        	<td>{{ mysubevent.eventName }}</td>
-	        </tr>
-	    </ul>
-	</div>
-</div>
-<script type="text/javascript" src="js/angular.min.js"></script>
-<script type="text/javascript" src="js/guestlist.js"></script>
-<script type="text/javascript" src="js/angular-resource.min.js"></script>
+	<div ng-include="'footer.html'"></div>
+	<script type="text/javascript" src="js/angular.min.js"></script>
+	<script type="text/javascript" src="js/guestlist.js"></script>
+	<script type="text/javascript" src="js/angular-resource.min.js"></script>
 </body>
 </html>
