@@ -4,6 +4,8 @@
 <title>GuestList</title>
 <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="css/shop-homepage.css" />
+<link rel="stylesheet" type="text/css" href="css/ngDialog.css" />
+<link rel="stylesheet" type="text/css" href="css/ngDialog-theme-default.css" />
 <link rel="stylesheet" type="text/css" href="css/guestlist.css" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
@@ -12,47 +14,20 @@
 	<!-- Page Content -->
 	<div class="container">
 		<div class="row">
-
-			<div class="col-md-3">
-				<div class="list-group">
-					<a href="#" class="list-group-item">Event Info</a> <a href="#"
-						class="list-group-item">Guests</a> <a href="#"
-						class="list-group-item">RSVPs</a>
-				</div>
-			</div>
+			<div ng-include="'sidenav.html'"></div>
 			<div class="col-md-9">
-				<div ng-controller="EventController">
-					<form ng-submit="createEvent()">
-						<div class="form-group">
-							<label>Event Name</label> <input type="text"
-								ng-model="event.eventName" ng-required="true"
-								class="form-control"></input>
-						</div>
-						<div class="form-group">
-							<input type="submit" class="btn btn-default btn-lg"
-								value="Create Event" ng-disabled="eventCreated" />
-						</div>
-					</form>
-					<form ng-submit="addSubEvent()">
-						<h3>{{ event.eventName }}</h3>
-						<div class="form-group">
-							<label>Sub Event Name</label> <input type="text"
-								ng-model="subEvent.eventName" ng-required="true"
-								class="form-control"></input>
-						</div>
-						<div class="form-group">
-							<input type="submit" class="btn btn-default btn-lg"
-								value="Create Event" />
-						</div>
-					</form>
+				<div ng-controller="MyEventsController">
+					<div class="form-group">
+						<input type="button" class="btn btn-default btn-lg" ng-click="newEventPopUp()" value="New Event" />
+					</div>
 					<table id="customers">
 						<tr>
-							<th>Parent Event</th>
-							<th>Sub Event Name</th>
+							<th>Event Name</th>
+							<th>Event Date</th>
 						</tr>
-						<tr ng-repeat="mysubevent in subevents | orderBy: 'eventName'">
-							<td>{{ mysubevent.parentEvent }}</td>
-							<td>{{ mysubevent.eventName }}</td>
+						<tr ng-repeat="myevent in events | orderBy: 'eventDate'">
+							<td>{{ myevent.eventName }}</td>
+							<td>{{ myevent.eventDate }}</td>
 						</tr>
 					</table>
 				</div>
@@ -63,6 +38,8 @@
 	<div ng-include="'footer.html'"></div>
 	<script type="text/javascript" src="js/angular.min.js"></script>
 	<script type="text/javascript" src="js/guestlist.js"></script>
+	<!-- <script type="text/javascript" src="js/event.js"></script>-->
+	<script type="text/javascript" src="js/ngDialog.js"></script>
 	<script type="text/javascript" src="js/angular-resource.min.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
-var coffeeApp = angular.module('guestListApp', ['ngResource']);
+var guestListApp = angular.module('guestListApp', ['ngResource', 'ngDialog']);
 
-coffeeApp.controller('EventGuestsController', function($scope, $resource, $http, $timeout) {
+guestListApp.controller('EventGuestsController', function($scope, $resource, $http, $timeout) {
 	console.log("In EventGuestsController");
 	
 	$scope.initializeGuests = function() {
@@ -32,7 +32,7 @@ coffeeApp.controller('EventGuestsController', function($scope, $resource, $http,
 	$scope.initializeGuests();
 });
 
-coffeeApp.controller('EventController', function($scope, $http) {    
+guestListApp.controller('EventController', function($scope, $http) {    
 
     $scope.createEvent = function() {
         $http.post('/event/', $scope.event)
@@ -75,6 +75,24 @@ coffeeApp.controller('EventController', function($scope, $http) {
         $http.post('/guestlist/guest/', $scope.guest)
             .success(function(data) {
                 $scope.guests = data;
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+});
+
+guestListApp.controller('MyEventsController', function($scope, $http, ngDialog) {
+
+    $scope.newEventPopUp = function () {
+            ngDialog.open({ template: 'newEventPopUp.html', controller: 'MyEventsController' });
+    };
+
+    $scope.newEvent = function () {
+        console.log("In MyEventsController newEvent()");
+        $http.post('/event/', $scope.newEvent)
+            .success(function(data) {
+                $scope.event = data;               
             })
             .error(function(data) {
                 console.log('Error: ' + data);
