@@ -2,7 +2,10 @@ package com.guestlist.web.server;
 
 import java.io.IOException;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -36,7 +39,8 @@ public class EventResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(EventResource.class);
 	
 	private Client client;
-	private static final ObjectMapper mapper = new ObjectMapper();
+	//private static final ObjectMapper mapper = new ObjectMapper();
+	private static final DateFormat eventDateFmt = new SimpleDateFormat("MMM dd, yyyy HH:mm");
 	
 	public EventResource(Client client) {
 		this.client = client;
@@ -65,6 +69,42 @@ public class EventResource {
 			e.printStackTrace();
 		}
 		return event;
+	}
+	
+	@Path("/{user}")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Collection<Event> getEventsForUser(@PathParam("user") String user) {
+        LOGGER.info("getEventsForUser: {}", user);
+        
+        if(user == null) {
+        	LOGGER.error("Invalid user {}", user);
+        	throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+    	
+    	List<Event> events = new ArrayList<>();
+
+    	QueryBuilder qb = QueryBuilders.matchQuery("user", user);    	
+    	SearchRequestBuilder srb = client.prepareSearch("guestlist");
+    	srb.setTypes("event");
+    	srb.setQuery(qb);
+    	srb.setSize(1000);
+    	SearchResponse response = srb.execute().actionGet();
+    	
+    	ObjectMapper eventMapper = new ObjectMapper();
+    	eventMapper.setDateFormat(eventDateFmt);
+    	
+    	for(SearchHit searchHit : response.getHits()) {
+    		try {
+    			Event g = eventMapper.readValue(searchHit.getSourceAsString(), Event.class);
+    			events.add(g);
+    		} catch (IOException e) {
+    			LOGGER.error("Could not map search hit to Event", e);
+    			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+    		}
+    	}
+    	
+    	return events;
 	}
 	
 	@Path("subevent")
@@ -105,9 +145,12 @@ public class EventResource {
     	srb.setSize(100);
     	SearchResponse response = srb.execute().actionGet();
     	
+    	ObjectMapper eventMapper = new ObjectMapper();
+    	eventMapper.setDateFormat(eventDateFmt);
+    	
     	for(SearchHit searchHit : response.getHits()) {
     		try {
-    			SubEvent g = mapper.readValue(searchHit.getSourceAsString(), SubEvent.class);
+    			SubEvent g = eventMapper.readValue(searchHit.getSourceAsString(), SubEvent.class);
     			subEvents.add(g);
     		} catch (IOException e) {
     			LOGGER.error("Could not map search hit to SubEvent", e);

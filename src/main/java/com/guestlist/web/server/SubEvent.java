@@ -8,7 +8,7 @@ public class SubEvent extends AbstractEvent {
 	
 	public SubEvent() {
         // Jackson deserialization
-		this.invitedGuests = new HashSet<Guest>();
+		//this.invitedGuests = new HashSet<Guest>();
     }
 	
 //	public SubEvent(String eventName) {

@@ -1,18 +1,20 @@
 package com.guestlist.web.server;
 
 import java.util.Collection;
+import java.util.Date;
 
 import org.joda.time.DateTime;
 
 public abstract class AbstractEvent {
-	private String account;
+	private String user;
 	protected String eventName;
 	protected String eventKey;
-	protected DateTime eventDate;
-	protected Collection<Guest> invitedGuests;
+	//protected DateTime eventDate;
+	protected Date eventDate;
+	//protected Collection<Guest> invitedGuests;
 	
-	public String getAccount() {
-		return account;
+	public String getUser() {
+		return user;
 	}
 	
 	public String getEventName() {
@@ -23,21 +25,21 @@ public abstract class AbstractEvent {
 		return eventKey;
 	}
 	
-	public DateTime getEventDate() {
+	public Date getEventDate() {
 		return eventDate;
 	}
 	
-	public Collection<Guest> getInvitedGuests() {
-		return invitedGuests;
-	}
-	
-	public void addGuest(Guest guest) {
-		invitedGuests.add(guest);
-	}
-	
-	public void deleteGuest(Guest guest) {
-		invitedGuests.remove(guest);
-	}
+//	public Collection<Guest> getInvitedGuests() {
+//		return invitedGuests;
+//	}
+//	
+//	public void addGuest(Guest guest) {
+//		invitedGuests.add(guest);
+//	}
+//	
+//	public void deleteGuest(Guest guest) {
+//		invitedGuests.remove(guest);
+//	}
 	
 	public abstract void populateEventKey();
 }

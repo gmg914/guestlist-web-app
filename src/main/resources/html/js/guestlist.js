@@ -83,16 +83,25 @@ guestListApp.controller('EventController', function($scope, $http) {
 });
 
 guestListApp.controller('MyEventsController', function($scope, $http, ngDialog) {
+    $scope.user = 'gmoy';    
+
 
     $scope.newEventPopUp = function () {
             ngDialog.open({ template: 'newEventPopUp.html', controller: 'MyEventsController' });
     };
 
-    $scope.newEvent = function () {
-        console.log("In MyEventsController newEvent()");
+    $scope.createEvent = function () {
+        console.log("In MyEventsController createEvent()");
+        console.log($scope.newEvent.eventName);
+        console.log($scope.newEvent.eventDate);
+
+        $scope.newEvent.user = $scope.user;
+
+        console.log($scope.newEvent);
         $http.post('/event/', $scope.newEvent)
             .success(function(data) {
-                $scope.event = data;               
+                console.log("Success!");  
+                ngDialog.close();           
             })
             .error(function(data) {
                 console.log('Error: ' + data);
