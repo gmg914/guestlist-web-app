@@ -82,16 +82,34 @@ guestListApp.controller('EventController', function($scope, $http) {
     };
 });
 
-guestListApp.controller('MyEventsController', function($scope, $http, ngDialog) {
+guestListApp.controller('MyEventsController', function($scope, $http, $timeout, $rootScope, ngDialog) {
     $scope.user = 'gmoy';    
 
+    $scope.updateEventsForUser = function() {
+        $http.get('/event/' + $scope.user).success(function(data) {
+            console.log("In MyEventsController updateEventsForUser()");
+            console.log(data);
+            $scope.events = data;
+        });
+    };
 
     $scope.newEventPopUp = function () {
-            ngDialog.open({ template: 'newEventPopUp.html', controller: 'MyEventsController' });
+            ngDialog.open({ 
+                template: 'newEventPopUp.html',
+                scope:$scope,
+                controller: 'MyEventsController' 
+            });
     };
+
+    $rootScope.$on('newEventCreated', function(event, data) { 
+        console.log("In whatevereventnameyouwant"); 
+        console.log(data);
+        $scope.events = data;
+    });
 
     $scope.createEvent = function () {
         console.log("In MyEventsController createEvent()");
+
         console.log($scope.newEvent.eventName);
         console.log($scope.newEvent.eventDate);
 
@@ -101,10 +119,27 @@ guestListApp.controller('MyEventsController', function($scope, $http, ngDialog) 
         $http.post('/event/', $scope.newEvent)
             .success(function(data) {
                 console.log("Success!");  
-                ngDialog.close();           
+                console.log(data);
+
+//                setTimeout(function() {
+//                    console.log("In setTimeout");
+//                    $scope.$apply(function(){
+//                        $scope.events = data;
+//                    })
+//                }
+//                , 1000);
+
+                //$scope.events = data;
+
+            $scope.$emit('newEventCreated', data);
+
+                ngDialog.close(); 
             })
             .error(function(data) {
                 console.log('Error: ' + data);
             });
     };
+
+    //initialize events
+    $scope.updateEventsForUser();
 });

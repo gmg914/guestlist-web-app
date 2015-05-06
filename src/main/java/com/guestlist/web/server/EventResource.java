@@ -18,6 +18,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -40,7 +41,7 @@ public class EventResource {
 	
 	private Client client;
 	//private static final ObjectMapper mapper = new ObjectMapper();
-	private static final DateFormat eventDateFmt = new SimpleDateFormat("MMM dd, yyyy HH:mm");
+	private static final DateFormat eventDateFmt = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss a");
 	
 	public EventResource(Client client) {
 		this.client = client;
@@ -49,7 +50,7 @@ public class EventResource {
 	//@Path("event")
 	@POST()
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Event createEvent(Event event) {
+	public Collection<Event> createEvent(Event event) {
         LOGGER.info("createEvent: {}", event);
         
         if(event == null || event.getEventName() == null) {
@@ -68,7 +69,8 @@ public class EventResource {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return event;
+    	refreshIndices();
+		return getEventsForUser(event.getUser());
 	}
 	
 	@Path("/{user}")
@@ -160,4 +162,8 @@ public class EventResource {
     	
     	return subEvents;
     }
+    
+	private void refreshIndices(String... indices) {
+		client.admin().indices().refresh(new RefreshRequest(indices)).actionGet();
+	}
 }
